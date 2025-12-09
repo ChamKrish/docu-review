@@ -28,9 +28,9 @@ const flattenFiles = (nodes: FileNode[]): FileNode[] => {
     }
   });
   return result;
-}
+};
 
-export function FileViewer() {
+export const FileViewer = () => {
   const allFiles = useMemo(() => flattenFiles(sampleFiles), []);
   const [selectedFile, setSelectedFile] = useState<FileNode>(allFiles[0]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -49,48 +49,49 @@ export function FileViewer() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-      <Card className="border-zinc-200">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-zinc-900">Files</CardTitle>
-          <CardDescription>Select a file to preview its contents.</CardDescription>
-        </CardHeader>
-        <Separator />
-        <CardContent className="p-0">
-          <ScrollArea className="h-[520px]">
-            <FileTree
-              tree={sampleFiles}
-              expanded={expanded}
-              selectedPath={selectedFile?.path}
-              onToggle={toggle}
-              onSelect={setSelectedFile}
-            />
-          </ScrollArea>
-        </CardContent>
-      </Card>
+    <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        <Card className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold text-zinc-900">Files</CardTitle>
+            <CardDescription>Select a file to preview its contents.</CardDescription>
+          </CardHeader>
+          <Separator />
+          <CardContent className="p-0">
+            <ScrollArea className="h-[520px]">
+              <FileTree
+                tree={sampleFiles}
+                expanded={expanded}
+                selectedPath={selectedFile?.path}
+                onToggle={toggle}
+                onSelect={setSelectedFile}
+              />
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-      <Card className="border-zinc-200">
-        <CardHeader className="flex items-start justify-between gap-4 pb-3">
-          <div>
-            <CardTitle className="text-lg font-semibold text-zinc-900">{selectedFile?.name}</CardTitle>
-            <CardDescription className="text-xs text-zinc-500">
-              {selectedFile?.path}
-            </CardDescription>
-          </div>
-          <Badge variant="outline">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
-            Read-only
-          </Badge>
-        </CardHeader>
-        <Separator />
-        <CardContent className="p-0">
-          <ScrollArea className="h-[520px] rounded-b-xl border-t border-zinc-100 bg-slate-950 text-slate-100">
-            <pre className="whitespace-pre-wrap break-words px-5 py-4 font-mono text-sm leading-6">
-              <code>{selectedFile?.content ?? "No content available."}</code>
-            </pre>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+        <Card className="border-zinc-200">
+          <CardHeader className="flex items-start justify-between gap-4 rounded-t-2xl border border-zinc-200 bg-white p-4">
+            <div>
+              <CardTitle className="text-lg font-semibold text-zinc-900">{selectedFile?.name}</CardTitle>
+              <CardDescription className="text-xs text-zinc-500">
+                {selectedFile?.path}
+              </CardDescription>
+            </div>
+            <Badge variant="outline">
+              <span className="h-2 w-2 rounded-full bg-green-500" />
+              Read-only
+            </Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ScrollArea className="h-[580px] rounded-b-xl border-t border-zinc-100 bg-slate-950 text-slate-100">
+              <pre className="whitespace-pre-wrap break-words px-5 py-4 font-mono text-sm leading-6">
+                <code>{selectedFile?.content ?? "No content available."}</code>
+              </pre>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-}
+};

@@ -5,9 +5,6 @@ export default function Home() {
     <main className="min-h-screen bg-zinc-50">
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-6 space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
-            Demo
-          </p>
           <h1 className="text-2xl font-semibold text-zinc-900">DocuReview</h1>
           <p className="text-sm text-zinc-600">
             Preview file contents and review the documents by chatting with your files.
