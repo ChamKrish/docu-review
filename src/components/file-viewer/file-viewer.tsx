@@ -49,9 +49,9 @@ export const FileViewer = () => {
   };
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <Card className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <Card className="rounded-2xl border border-zinc-200 bg-white p-4">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold text-zinc-900">Files</CardTitle>
             <CardDescription>Select a file to preview its contents.</CardDescription>
