@@ -1,11 +1,10 @@
 import React from 'react'
 
-import { ChatRole, IChatMessage } from './types';
-import { ChatMessageStatus } from './chat-window';
+import { ChatRole, ChatStatus, IChatMessage } from './types';
 
 interface IChatMessageProps {
   msg: IChatMessage;
-  status: ChatMessageStatus;
+  status: ChatStatus;
 }
 
 const roleStyles: Record<ChatRole, string> = {

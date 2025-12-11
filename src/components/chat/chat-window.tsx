@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 import { Button } from "../ui/button";
 import {
@@ -13,15 +14,12 @@ import {
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
-import { assistantContent, initialMessage, reasoningContent } from "./mock-data";
-import { IChatMessage, ChatRole, IChatMessageContent } from "./types";
 import ChatMessage from "./chat-message";
+import { useGetMessagesQuery, useSendMessageMutation } from "../../services/chatApi";
+import { RootState } from "../../store/store";
+import { ChatStatus } from "./types";
 
-const TOKEN_DELAY = 60;
-
-export type ChatMessageStatus = "loading" | "reasoning" | "answering" | "";
-
-const ChatPlaceholder = new Map<ChatMessageStatus, string>([
+const ChatPlaceholder = new Map<ChatStatus, string>([
   ["loading", "Thinking..."],
   ["reasoning", "Reasoning..."],
   ["answering", "Answering..."],
@@ -29,12 +27,15 @@ const ChatPlaceholder = new Map<ChatMessageStatus, string>([
 ]);
 
 export const ChatWindow = () => {
-  const [messages, setMessages] = useState<IChatMessage[]>([initialMessage]);
+  const { data: messages = [] } = useGetMessagesQuery();
+  const [sendMessage] = useSendMessageMutation();
+
+  const status = useSelector<RootState, ChatStatus>(
+    (state) => state.chatUi.status
+  );
   const [input, setInput] = useState("");
   const [isSticky, setIsSticky] = useState(true);
-  const [status, setStatus] = useState<ChatMessageStatus>("");
   const listRef = useRef<HTMLDivElement>(null);
-  const streamTimer = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
@@ -65,76 +66,6 @@ export const ChatWindow = () => {
     }
   }, [messages, isSticky]);
 
-  useEffect(() => {
-    return () => {
-      if (streamTimer.current) clearInterval(streamTimer.current);
-    };
-  }, []);
-
-  const streamSection = (id: string, message: string | string[], sectionKey: string) =>
-    new Promise<void>((resolve) => {
-      const msg = Array.isArray(message) ? message.join("\n") : message;
-      const tokens = msg.split(" ").filter((t) => t.length);
-
-      if (!tokens.length) {
-        resolve();
-        return;
-      }
-
-      let idx = 0;
-      const interval = setInterval(() => {
-        idx += 1;
-        setMessages((prev) =>
-          prev.map((m) => {
-            if (m.id !== id) return m;
-            const updatedContent = m.content.map((c, contentIdx) => {
-              if (contentIdx !== m.content.length - 1) return c;
-              const text = tokens.slice(0, idx)?.join(" ") || "";
-              return { ...c, [sectionKey]: Array.isArray(message) ? text.split("\n") : text };
-            });
-            return { ...m, content: updatedContent };
-          })
-        );
-        if (idx >= tokens.length) {
-          clearInterval(interval);
-          resolve();
-        }
-      }, TOKEN_DELAY);
-      streamTimer.current = interval;
-    });
-
-  const streamMessage = async (
-    role: ChatRole,
-    content: IChatMessageContent[]
-  ) => {
-    setStatus(role === "reasoning" ? "reasoning" : "answering");
-    const id = `${Date.now()}-${role}`;
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id,
-        role,
-        content: [],
-      },
-    ]);
-
-    for (const section of content) {
-      setMessages((prev) =>
-        prev.map((m) => {
-          if (m.id !== id) return m;
-          const nextContent = [...m.content, { label: "", content: [""] }];
-          return { ...m, content: nextContent };
-        })
-      );
-      await streamSection(id, section.label, 'label');
-      await streamSection(id, section.content, 'content');
-    }
-    setStatus("");
-  };
- 
-  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
   const handleInputKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -145,27 +76,14 @@ export const ChatWindow = () => {
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     const text = input.trim();
+    if (!text) return;
     setIsSticky(true);
-    const userMsg: IChatMessage = {
-      id: `${Date.now()}-user`,
-      role: "user",
-      content: [
-        {
-          label: "User",
-          content: [text],
-        },
-      ],
-    };
-    setMessages((prev) => [...prev, userMsg]);
     setInput("");
-
-    // Stream reasoning first, then assistant answer sequentially.
-    setStatus("loading");
-    await wait(120);
-    await streamMessage("reasoning", reasoningContent);
-    setStatus("loading");
-    await wait(400);
-    await streamMessage("assistant", assistantContent);
+    try {
+      await sendMessage(text).unwrap();
+    } finally {
+      console.log("Message sent");
+    }
   };
 
   return (
@@ -182,7 +100,7 @@ export const ChatWindow = () => {
           <ScrollArea ref={listRef} className="h-full min-h-0 px-4">
             <div className="space-y-3 py-4">
               {messages.map((msg) => (
-                <ChatMessage msg={msg} status={status} />
+                <ChatMessage key={msg.id} msg={msg} status={status} />
               ))}
             </div>
           </ScrollArea>
