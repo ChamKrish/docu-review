@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 import { Button } from "../ui/button";
 import {
@@ -18,7 +20,11 @@ import ChatMessage from "./chat-message";
 import { useGetMessagesQuery, useSendMessageMutation } from "../../services/chatApi";
 import { RootState } from "../../store/store";
 import { ChatStatus } from "./types";
+import { useGetMessagesQuery, useSendMessageMutation } from "../../services/chatApi";
+import { RootState } from "../../store/store";
+import { ChatStatus } from "./types";
 
+const ChatPlaceholder = new Map<ChatStatus, string>([
 const ChatPlaceholder = new Map<ChatStatus, string>([
   ["loading", "Thinking..."],
   ["reasoning", "Reasoning..."],
@@ -27,6 +33,12 @@ const ChatPlaceholder = new Map<ChatStatus, string>([
 ]);
 
 export const ChatWindow = () => {
+  const { data: messages = [] } = useGetMessagesQuery();
+  const [sendMessage] = useSendMessageMutation();
+
+  const status = useSelector<RootState, ChatStatus>(
+    (state) => state.chatUi.status
+  );
   const { data: messages = [] } = useGetMessagesQuery();
   const [sendMessage] = useSendMessageMutation();
 
@@ -77,8 +89,14 @@ export const ChatWindow = () => {
     e.preventDefault();
     const text = input.trim();
     if (!text) return;
+    if (!text) return;
     setIsSticky(true);
     setInput("");
+    try {
+      await sendMessage(text).unwrap();
+    } finally {
+      console.log("Message sent");
+    }
     try {
       await sendMessage(text).unwrap();
     } finally {
@@ -100,6 +118,7 @@ export const ChatWindow = () => {
           <ScrollArea ref={listRef} className="h-full min-h-0 px-4">
             <div className="space-y-3 py-4">
               {messages.map((msg) => (
+                <ChatMessage key={msg.id} msg={msg} status={status} />
                 <ChatMessage key={msg.id} msg={msg} status={status} />
               ))}
             </div>
