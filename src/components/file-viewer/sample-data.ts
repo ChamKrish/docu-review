@@ -37,11 +37,65 @@ GET /api/file?path=path/to/file`,
         name: "index.ts",
         path: "src/index.ts",
         type: "file",
-        content: `export function hello(name: string) {
-  return \`Hello, \${name}\`;
-}
+        content: `const buttonClasses =
+  "rounded-md border border-zinc-300 px-3 py-1 text-sm font-medium shadow-sm hover:bg-zinc-50 active:translate-y-px transition";
 
-console.log(hello("World"));`,
+export function bootstrap(containerId: string) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  el.innerHTML = "<h1>DocuReview Demo</h1><p>Click to simulate loading files.</p>";
+
+  const btn = document.createElement("button");
+  btn.textContent = "Load files";
+  btn.className = buttonClasses;
+
+  const log = document.createElement("pre");
+  log.className =
+    "mt-3 max-h-48 overflow-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-100";
+  log.textContent = "logs will appear here...";
+
+  btn.onclick = () => {
+    btn.disabled = true;
+    log.textContent += "\\n> fetching files...";
+    btn.textContent = "Loading...";
+    setTimeout(() => {
+      btn.textContent = "Files loaded";
+      log.textContent += "\\n✓ 8 files loaded from cache";
+      btn.disabled = false;
+    }, 1200);
+  };
+
+  const list = document.createElement("ul");
+  list.className = "mt-4 space-y-1 text-sm text-slate-700";
+
+  const items = [
+    "docs/overview.md",
+    "docs/api.md",
+    "src/index.ts",
+    "src/components/Button.tsx",
+    "public/favicon.ico",
+    "next.config.js",
+    "package.json",
+    "README.md",
+    "app/page.tsx",
+    "src/components/chat/chat-window.tsx",
+    "src/components/file-viewer/file-viewer.tsx",
+  ];
+
+  for (const path of items) {
+    const li = document.createElement("li");
+    li.textContent = "• " + path;
+    list.appendChild(li);
+  }
+
+  const note = document.createElement("p");
+  note.className = "mt-3 text-xs text-slate-500";
+  note.textContent = "Tip: open a file from the tree to see its contents.";
+
+  el.append(btn, list, log, note);
+}
+`,
       },
       {
         name: "components",

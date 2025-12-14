@@ -87,9 +87,9 @@ export const ChatWindow = () => {
   };
 
   return (
-    <Card className="flex h-full min-h-[400px] max-h-[70vh] flex-col overflow-hidden border-zinc-200 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-      <CardHeader className="space-y-1">
-        <CardTitle className="flex items-center justify-between text-lg font-semibold text-zinc-900">
+    <Card className="flex h-[78vh] max-h-[78vh] min-h-[420px] flex-col overflow-hidden border-zinc-200 rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold text-zinc-900">
           Chat
         </CardTitle>
         <CardDescription>Review your documents by chatting with them...</CardDescription>
@@ -111,7 +111,7 @@ export const ChatWindow = () => {
                 variant="default"
                 size="sm"
                 aria-label="Scroll to bottom"
-                className="pointer-events-auto bg-white text-sm text-zinc-500 hover:text-zinc-700 px-2 py-1 rounded-full shadow-lg"
+                className="pointer-events-auto !bg-white text-sm text-zinc-500 hover:text-zinc-700 px-2 py-1 rounded-full shadow-lg"
                 onClick={() => {
                   scrollToBottom();
                   setIsSticky(true);
